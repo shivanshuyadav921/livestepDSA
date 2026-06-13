@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Stage {
+  UNDERSTAND
+  OBSERVE
+  PATTERN_MATCH
+  CREATE_RECIPE
+  PREDICT_COMPLEXITY
+  IMPLEMENT
+  REFLECT
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  problemText  String   @db.Text
+  sourceUrl    String?
+  currentStage Stage    @default(UNDERSTAND)
+  recipe       Json?
+  stageData    Json     @default("{}")
+  hintsUsed    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  messages     Message[]
+  submissions  Submission[]
+
+  @@index([createdAt])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String
+  content   String   @db.Text
+  stage     Stage?
+  createdAt DateTime @default(now())
+
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  sessionId String
+  code      String   @db.Text
+  language  String
+  feedback  Json?
+  createdAt DateTime @default(now())
+
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
