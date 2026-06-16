@@ -5,16 +5,20 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 
-# Copy workspace root manifests
+# Copy workspace root manifests and config
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY tsconfig.base.json ./
 
-# Copy only the package.json files needed for dependency resolution
+# Copy package.json files for all workspace packages
 COPY packages/database/package.json ./packages/database/
 COPY packages/prompts/package.json ./packages/prompts/
 COPY packages/recipe-engine-core/package.json ./packages/recipe-engine-core/
 COPY apps/api/package.json ./apps/api/
 
-# Install dependencies (no lockfile freeze in CI-like builds; adjust as needed)
+# Copy all source so pnpm can resolve workspace packages correctly
+COPY packages/ ./packages/
+COPY apps/api/ ./apps/api/
+
 RUN pnpm install --frozen-lockfile
 
 # ── Stage 2: Build workspace packages + API ────────────────────
@@ -23,13 +27,9 @@ RUN apk add --no-cache libc6-compat
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/database/node_modules ./packages/database/node_modules
-COPY --from=deps /app/packages/prompts/node_modules ./packages/prompts/node_modules
-COPY --from=deps /app/packages/recipe-engine-core/node_modules ./packages/recipe-engine-core/node_modules
-COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 
-COPY . .
+# Copy everything from deps (includes proper node_modules with resolved symlinks)
+COPY --from=deps /app ./
 
 # Generate Prisma client
 RUN cd packages/database && npx prisma generate
@@ -46,25 +46,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy only production node_modules and built artifacts
-COPY --from=builder /app/packages/database/dist ./packages/database/dist
-COPY --from=builder /app/packages/database/node_modules ./packages/database/node_modules
-COPY --from=builder /app/packages/database/package.json ./packages/database/package.json
-
-COPY --from=builder /app/packages/prompts/dist ./packages/prompts/dist
-COPY --from=builder /app/packages/prompts/node_modules ./packages/prompts/node_modules
-COPY --from=builder /app/packages/prompts/package.json ./packages/prompts/package.json
-
-COPY --from=builder /app/packages/recipe-engine-core/dist ./packages/recipe-engine-core/dist
-COPY --from=builder /app/packages/recipe-engine-core/node_modules ./packages/recipe-engine-core/node_modules
-COPY --from=builder /app/packages/recipe-engine-core/package.json ./packages/recipe-engine-core/package.json
-
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
-
-# Copy Prisma generated client & schema for runtime query building
-COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
+# Copy the entire workspace with node_modules and built artifacts
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/api ./apps/api
+COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3001
 
