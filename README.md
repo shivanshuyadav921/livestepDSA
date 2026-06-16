@@ -116,6 +116,53 @@ The heart of AlgoChef — not just another module:
 | POST | `/sessions/:id/hint` | Get a progressive hint |
 | POST | `/sessions/:id/submit` | Submit code for feedback |
 
+## Deployment
+
+### Docker (Production)
+
+The project includes a multi-stage Docker build for both the API and Web apps, with a production-ready Docker Compose configuration.
+
+#### 1. Configure environment
+
+```bash
+cp .env.production .env
+# Edit .env — set a strong POSTGRES_PASSWORD at minimum
+```
+
+#### 2. Build and start
+
+```bash
+./deploy.sh --build
+```
+
+This builds fresh Docker images and starts all services (PostgreSQL, API, Web).
+
+#### 3. Run database migrations
+
+```bash
+./deploy.sh --migrate
+```
+
+#### 4. Verify
+
+- Web: http://localhost:3000
+- API Health: http://localhost:3001/health
+
+### Other commands
+
+```bash
+./deploy.sh            # Start without rebuilding
+./deploy.sh --logs     # Tail all logs
+./deploy.sh --status   # Show service status
+./deploy.sh --down     # Stop all services
+```
+
+### Production notes
+
+- All services bind to `127.0.0.1` by default — use a reverse proxy (nginx, Caddy) for public access with TLS.
+- The `POSTGRES_PASSWORD` **must** be changed from the default before deploying to a real server.
+- Without `OPENAI_API_KEY`, the API runs in **mock mode** with sample responses.
+
 ## License
 
 Private — All rights reserved.

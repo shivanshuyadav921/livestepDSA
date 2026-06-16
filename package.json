@@ -11,7 +11,16 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
     "db:generate": "pnpm --filter @algochef/database generate",
     "db:push": "pnpm --filter @algochef/database push",
-    "db:studio": "pnpm --filter @algochef/database studio"
+    "db:studio": "pnpm --filter @algochef/database studio",
+    "db:migrate": "pnpm --filter @algochef/database prisma migrate deploy",
+    "deploy": "bash deploy.sh",
+    "deploy:build": "bash deploy.sh --build",
+    "deploy:down": "bash deploy.sh --down",
+    "deploy:logs": "bash deploy.sh --logs",
+    "deploy:status": "bash deploy.sh --status",
+    "docker:build": "docker compose -f docker-compose.prod.yml build",
+    "docker:up": "docker compose -f docker-compose.prod.yml up -d",
+    "docker:down": "docker compose -f docker-compose.prod.yml down"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
