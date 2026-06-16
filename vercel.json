@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm turbo build --filter=@algochef/recipe-engine-core... --filter=@algochef/web...",
+  "outputDirectory": ".next",
+  "rootDirectory": "apps/web",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@next-public-api-url"
+  },
+  "regions": ["sin1"]
+}

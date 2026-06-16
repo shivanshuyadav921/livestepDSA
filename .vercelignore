@@ -1,0 +1,23 @@
+# Docker & deployment files
+Dockerfile
+docker-compose*.yml
+deploy.sh
+.dockerignore
+
+# API (not needed for web deployment)
+apps/api/
+
+# Environment files (use Vercel dashboard instead)
+.env*
+
+# IDE & editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing & coverage
+coverage/
+
+# Turborepo cache
+.turbo/

@@ -118,9 +118,42 @@ The heart of AlgoChef — not just another module:
 
 ## Deployment
 
-### Docker (Production)
+### Vercel (Web Frontend)
 
-The project includes a multi-stage Docker build for both the API and Web apps, with a production-ready Docker Compose configuration.
+The web app is configured for Vercel deployment out of the box via `vercel.json`.
+
+#### 1. Connect your repo to Vercel
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import your GitHub repository
+3. Vercel will auto-detect the framework (Next.js) and pnpm
+
+#### 2. Configure build settings
+
+Vercel will read `vercel.json` automatically:
+- **Root Directory:** `apps/web`
+- **Build Command:** `pnpm turbo build --filter=@algochef/recipe-engine-core... --filter=@algochef/web...`
+- **Install Command:** `pnpm install`
+
+#### 3. Set environment variables
+
+In the Vercel dashboard → Settings → Environment Variables, add:
+
+| Variable | Value |
+|----------|-------|
+| `NEXT_PUBLIC_API_URL` | `https://your-api-domain.com` (your VPS API URL) |
+
+#### 4. Deploy
+
+Push to `main` — Vercel will auto-deploy. Each PR gets a preview URL.
+
+> **Note:** The API is hosted separately on your VPS. The web app calls it via `NEXT_PUBLIC_API_URL`.
+
+### Docker (API on VPS)
+
+The NestJS API is deployed via Docker on your VPS.
+
+The project includes a multi-stage Docker build for the API, with a production-ready Docker Compose configuration.
 
 #### 1. Configure environment
 

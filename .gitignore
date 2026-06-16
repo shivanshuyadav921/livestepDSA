@@ -52,6 +52,9 @@ packages/database/prisma/*.db
 # Docker
 docker-compose.override.yml
 
+# Vercel
+.vercel
+
 # Misc
 *.tgz
 .cache/
