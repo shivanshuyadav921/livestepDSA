@@ -5,12 +5,17 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 
-# Copy workspace root manifests
+# Copy workspace root manifests and config
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY tsconfig.base.json ./
 
 # Copy only the package.json files needed for dependency resolution
 COPY packages/recipe-engine-core/package.json ./packages/recipe-engine-core/
 COPY apps/web/package.json ./apps/web/
+
+# Copy all source so pnpm can resolve workspace packages correctly
+COPY packages/recipe-engine-core/ ./packages/recipe-engine-core/
+COPY apps/web/ ./apps/web/
 
 RUN pnpm install --frozen-lockfile
 
@@ -20,41 +25,30 @@ RUN apk add --no-cache libc6-compat
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/recipe-engine-core/node_modules ./packages/recipe-engine-core/node_modules
-COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 
-COPY . .
+# Copy everything from deps (includes proper node_modules with resolved symlinks)
+COPY --from=deps /app ./
 
 # Build recipe-engine-core first, then web
 RUN pnpm turbo build --filter=@algochef/recipe-engine-core... --filter=@algochef/web...
 
 # ── Stage 3: Production runner ─────────────────────────────────
 FROM node:20-alpine AS runner
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat curl
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy only production node_modules for the web app
+# Copy the entire workspace with node_modules and built artifacts
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/web ./apps/web
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages/recipe-engine-core/dist ./packages/recipe-engine-core/dist
-COPY --from=builder /app/packages/recipe-engine-core/node_modules ./packages/recipe-engine-core/node_modules
-COPY --from=builder /app/packages/recipe-engine-core/package.json ./packages/recipe-engine-core/package.json
-
-# Copy the built Next.js app
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
-COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
-COPY --from=builder /app/apps/web/next.config.ts ./apps/web/next.config.ts
-
-# Copy public directory if it exists
-COPY --from=builder /app/apps/web/public/ ./apps/web/public/
 
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:3000/ || exit 1
 
-CMD ["node", "apps/web/node_modules/.bin/next", "start", "apps/web", "-p", "3000"]
+CMD ["sh", "-c", "cd apps/web && npx next start -p 3000"]
