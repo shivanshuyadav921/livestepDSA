@@ -29,6 +29,10 @@ WORKDIR /app
 # Copy everything from deps (includes proper node_modules with resolved symlinks)
 COPY --from=deps /app ./
 
+# Declare build-time env variable for Next.js inlining
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 # Build recipe-engine-core first, then web
 RUN pnpm turbo build --filter=@algochef/recipe-engine-core... --filter=@algochef/web...
 
