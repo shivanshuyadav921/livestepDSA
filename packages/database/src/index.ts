@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-
+export { Stage } from '@prisma/client';
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 export const prisma =
