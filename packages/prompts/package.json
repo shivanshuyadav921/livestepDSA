@@ -6,7 +6,6 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "prisma generate --schema=./prisma/schema.prisma && tsc",
-    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
     "dev": "tsc --watch",
     "lint": "tsc --noEmit"
   },
