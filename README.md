@@ -118,15 +118,45 @@ The heart of AlgoChef — not just another module:
 
 ## Deployment
 
-### Docker (Production)
+### Vercel (Web Frontend)
 
-The project includes a multi-stage Docker build for both the API and Web apps, with a production-ready Docker Compose configuration.
+AlgoChef is ready for Vercel out of the box with zero-config support for both monorepo root and `apps/web` root directory settings!
+
+#### Option A: Full Serverless on Vercel (Recommended for Quick Deploy)
+
+The Next.js app in `apps/web` includes built-in API route handlers (`/api/sessions`, etc.) mirroring the NestJS API. You can run the entire platform on Vercel with a managed PostgreSQL database (such as Supabase, Neon, or Vercel Postgres).
+
+1. **Connect your repository:**
+   - Go to [vercel.com/new](https://vercel.com/new) and import your repository.
+   - Set **Root Directory** to `apps/web` (or leave as root `.`, both are supported).
+   - Vercel auto-detects Next.js and pnpm.
+2. **Configure Environment Variables:**
+   - `DATABASE_URL`: Your production PostgreSQL connection string (e.g., from Neon or Supabase).
+   - `OPENAI_API_KEY`: *(Optional)* Your OpenAI key. Without it, mock mode runs automatically.
+   - `OPENAI_MODEL`: *(Optional)* Defaults to `gpt-4o-mini`.
+3. **Deploy:**
+   - Click **Deploy**. Vercel will run `pnpm install` (with automatic Prisma client generation via `postinstall`) and build the web application.
+
+#### Option B: Frontend on Vercel + Backend on VPS
+
+If you run the NestJS API on your VPS using Docker:
+
+1. Follow step 1 above.
+2. Add the environment variable:
+   - `NEXT_PUBLIC_API_URL`: `https://your-api-domain.com` (your VPS API endpoint).
+3. The frontend will route requests to your VPS API instead of the internal Next.js handlers.
+
+---
+
+### Docker (Full Stack on VPS)
+
+To deploy the entire stack (PostgreSQL, NestJS API, and Next.js Web) on a VPS with Docker:
 
 #### 1. Configure environment
 
 ```bash
 cp .env.production .env
-# Edit .env — set a strong POSTGRES_PASSWORD at minimum
+# Edit .env and set a strong POSTGRES_PASSWORD at minimum
 ```
 
 #### 2. Build and start
@@ -134,8 +164,6 @@ cp .env.production .env
 ```bash
 ./deploy.sh --build
 ```
-
-This builds fresh Docker images and starts all services (PostgreSQL, API, Web).
 
 #### 3. Run database migrations
 
@@ -148,7 +176,7 @@ This builds fresh Docker images and starts all services (PostgreSQL, API, Web).
 - Web: http://localhost:3000
 - API Health: http://localhost:3001/health
 
-### Other commands
+#### Useful commands
 
 ```bash
 ./deploy.sh            # Start without rebuilding
@@ -156,12 +184,6 @@ This builds fresh Docker images and starts all services (PostgreSQL, API, Web).
 ./deploy.sh --status   # Show service status
 ./deploy.sh --down     # Stop all services
 ```
-
-### Production notes
-
-- All services bind to `127.0.0.1` by default — use a reverse proxy (nginx, Caddy) for public access with TLS.
-- The `POSTGRES_PASSWORD` **must** be changed from the default before deploying to a real server.
-- Without `OPENAI_API_KEY`, the API runs in **mock mode** with sample responses.
 
 ## License
 

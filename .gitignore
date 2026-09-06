@@ -46,11 +46,13 @@ ehthumbs.db
 Desktop.ini
 
 # Prisma
-packages/database/prisma/migrations/
 packages/database/prisma/*.db
 
 # Docker
 docker-compose.override.yml
+
+# Vercel
+.vercel
 
 # Misc
 *.tgz

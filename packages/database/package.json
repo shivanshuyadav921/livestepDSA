@@ -5,7 +5,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate --schema=./prisma/schema.prisma && tsc",
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
     "generate": "prisma generate",
     "push": "prisma db push",
     "studio": "prisma studio",

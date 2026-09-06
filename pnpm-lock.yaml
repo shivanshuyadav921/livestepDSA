@@ -102,6 +102,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@algochef/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@algochef/prompts':
+        specifier: workspace:*
+        version: link:../../packages/prompts
       '@algochef/recipe-engine-core':
         specifier: workspace:*
         version: link:../../packages/recipe-engine-core
@@ -117,12 +123,18 @@ importers:
       next:
         specifier: ^15.1.2
         version: 15.5.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      openai:
+        specifier: ^4.77.0
+        version: 4.104.0(zod@3.25.76)
       react:
         specifier: ^19.0.0
         version: 19.2.7
       react-dom:
         specifier: ^19.0.0
         version: 19.2.7(react@19.2.7)
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^22.10.2

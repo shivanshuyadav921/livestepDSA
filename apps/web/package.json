@@ -9,13 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@algochef/database": "workspace:*",
+    "@algochef/prompts": "workspace:*",
     "@algochef/recipe-engine-core": "workspace:*",
     "clsx": "^2.1.1",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.469.0",
     "next": "^15.1.2",
+    "openai": "^4.77.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
