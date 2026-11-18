@@ -120,7 +120,7 @@ The heart of AlgoChef — not just another module:
 
 ### Vercel (Web Frontend)
 
-AlgoChef is ready for Vercel out of the box with zero-config support for both monorepo root and `apps/web` root directory settings!
+AlgoChef is ready for Vercel out of the box with support for both monorepo root and `apps/web` root directory settings!
 
 #### Option A: Full Serverless on Vercel (Recommended for Quick Deploy)
 
